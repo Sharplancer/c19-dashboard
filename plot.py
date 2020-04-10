@@ -77,7 +77,10 @@ def make_figure(df, labels, time_step_format):
     y_cols.remove('bound')
 
     figures = {}
-    for y in y_cols:
+
+    # Use the order of the labels.json file for order of figures
+    # Much easier to change downstream
+    for y in labels.keys():
         fig = go.Figure()
 
         for p in percentiles:
