@@ -149,7 +149,6 @@ def make_figure(df, labels, time_step_format):
                                  stepmode="backward"),
                             dict(step="all")
                         ]),
-                        xanchor = 'right'
                     ),
                     rangeslider=dict(
                         visible=True
