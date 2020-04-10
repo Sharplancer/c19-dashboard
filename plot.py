@@ -130,6 +130,34 @@ def make_figure(df, labels, time_step_format):
                 yaxis_linecolor="#464646"
             )
 
+            #add range slider
+            fig.update_layout(
+                xaxis=dict(
+                    rangeselector=dict(
+                        buttons=list([
+                            dict(count=7,
+                                 label="1w",
+                                 step="day",
+                                 stepmode="backward"),
+                            dict(count=14,
+                                 label="2w",
+                                 step="day",
+                                 stepmode="backward"),
+                            dict(count=30,
+                                 label="1m",
+                                 step="day",
+                                 stepmode="backward"),
+                            dict(step="all")
+                        ]),
+                        xanchor = 'right'
+                    ),
+                    rangeslider=dict(
+                        visible=True
+                    ),
+                    type="date"
+                )
+            )
+
         figures[labels[y]] = fig
 
     return figures
