@@ -72,7 +72,6 @@ def load_labels():
 
     return label_dict
 
-
 def make_figure(dfs, labels, time_step_format):
     all_scenario_figures = []
     for df in dfs:
@@ -136,6 +135,32 @@ def make_figure(dfs, labels, time_step_format):
                     plot_bgcolor='rgba(0,0,0,0)',
                     xaxis_linecolor="#464646",
                     yaxis_linecolor="#464646"
+                )
+
+                fig.update_layout(
+                    xaxis=dict(
+                        rangeselector=dict(
+                            buttons=list([
+                                dict(count=7,
+                                     label="1w",
+                                     step="day",
+                                     stepmode="backward"),
+                                dict(count=14,
+                                     label="2w",
+                                     step="day",
+                                     stepmode="backward"),
+                                dict(count=30,
+                                     label="1m",
+                                     step="day",
+                                     stepmode="backward"),
+                                dict(step="all")
+                            ]),
+                        ),
+                        rangeslider=dict(
+                            visible=True
+                        ),
+                        type="date"
+                    )
                 )
 
             figures[labels[y]] = fig
