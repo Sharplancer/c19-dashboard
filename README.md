@@ -15,8 +15,7 @@ Configurations are stored in plot/config.json
 ### Run the Plotly Dash app:
 
 ```
-$ cd plot
-$ python app.py
+$ python application.py
 ```
 
 Visit: 
@@ -24,11 +23,24 @@ Visit:
 
 ### Embed the Plotly graphs in an html page
 ```
-$ cd plot
 $ python plot.py --dash False
 ```
 
 The plots are available in plot/dashboard.html
+
+## Deployment to AWS ElasticBeanstalk
+
+### Prerequisites:
+* Create an AWS account.
+* Create an Identity and Access Management (IAM) role with AWSElasticBeanstalkFullAccess.
+* Install the EasticBeanstalk CLI: https://github.com/aws/aws-elastic-beanstalk-cli-setup.
+
+### Forward
+Now you'll be all ready to read the instructions for Flask deployment for EBS (Dash uses Flask under the hood). Their instructions assume you are creating the app as you go, in this case you have your app all ready to deploy. There are optional steps to allow ssh access to the instance(s), I would advice against it. When creating your virtual env to test locally you should use python 3.6.10 (the lastest ebs currently supports). If you choose to make any sort of env that lives in the project directory do not forget to add it to the gitignore and ebsignore.
+
+### Instructions
+Follow the instructions for Flask deployment for EBS:
+https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create-deploy-python-flask.html.
 
 
 ## Summary
