@@ -21,13 +21,16 @@ def load_output_data(config=None):
 
     summary_files = [(key, val) for (key, val) in config.items() if key.startswith('summary_')]
     all_scenario_dataframes = []
-    for scenario_number in range(0, num_scenarios):
+    for scenario_number in range(0, int(num_scenarios)):
         scenario_dataframes = []
         scenario_output_path = output_path + '_{}/'.format(scenario_number)
         for file_type, file_name in summary_files:
             percentile = re.findall('\d*\.?\d+', file_name)[0]
 
-            df_temp = pd.read_csv(os.path.join(scenario_output_path, file_name))
+            try:
+                df_temp = pd.read_csv(os.path.join(scenario_output_path, file_name))
+            except FileNotFoundError:
+                df_temp = pd.read_csv(os.path.join(output_path, file_name))
             df_temp['percentile'] = percentile
             df_temp['timestep_formatted'] = df_temp.apply(lambda x: fill_timestep(x.timestep, first_time_step_datetime, time_delta), axis=1)
 
