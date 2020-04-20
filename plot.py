@@ -146,23 +146,23 @@ def make_figure(dfs, labels, time_step_format):
 
                 fig.update_layout(
                     xaxis=dict(
-                        rangeselector=dict(
-                            buttons=list([
-                                dict(count=7,
-                                     label="1w",
-                                     step="day",
-                                     stepmode="backward"),
-                                dict(count=14,
-                                     label="2w",
-                                     step="day",
-                                     stepmode="backward"),
-                                dict(count=30,
-                                     label="1m",
-                                     step="day",
-                                     stepmode="backward"),
-                                dict(step="all")
-                            ]),
-                        ),
+                        # rangeselector=dict(
+                        #     buttons=list([
+                        #         dict(count=7,
+                        #              label="1w",
+                        #              step="day",
+                        #              stepmode="backward"),
+                        #         dict(count=14,
+                        #              label="2w",
+                        #              step="day",
+                        #              stepmode="backward"),
+                        #         dict(count=30,
+                        #              label="1m",
+                        #              step="day",
+                        #              stepmode="backward"),
+                        #         dict(step="all")
+                        #     ]),
+                        # ),
                         rangeslider=dict(
                             visible=True
                         ),
