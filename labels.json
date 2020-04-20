@@ -1,16 +1,15 @@
 {
-    "n_Presenting": "Patients Presenting at Hospital",
-    "n_InGeneralWard": "Patients in General Ward",
-    "n_OffVentInICU": "Patients in ICU (not on Ventilator)",
-    "n_OnVentInICU": "Patients on Ventilator in ICU",
-    "n_TERMINAL": "Patients that Die Each Day",
+    "n_InGeneralWard": "Patient Count in General Ward each day",
+    "n_OffVentInICU": "Patient Count in ICU (not on Ventilator) each day",
+    "n_OnVentInICU": "Patients Count on Ventilator in ICU each day",
+    "n_TERMINAL": "Patients that Die each day",
+    "n_admitted_Presenting": "Patients Presenting at Hospital each day",
     "n_admitted_InGeneralWard": "Patients Added to General Ward each day",
     "n_admitted_OffVentInICU": "Patients Added to ICU (not on Vent) each day",
-    "n_admitted_OnVentInICU": "Patients Added on Ventilator in ICU each day",
-    "n_discharged_InGeneralWard": "Patients Discharged from General Ward each day",
-    "n_discharged_OffVentInICU": "Patients Discharged from ICU (not on Vent) each day",
-    "n_discharged_OnVentInICU": "Patients Discharged from Ventilator In ICU each day",
-    "n_discharged_Presenting": "Patients discharged from Presenting each day (fully recovered)", 
-    "n_admitted_Presenting": "Patients added to Presenting each day"
+    "n_admitted_OnVentInICU": "Patients Added on Ventilator in ICU each day",    
+    "n_discharged_Presenting": "Patients Discharged from Presenting each day (fully recovered)", 
+    "n_discharged_InGeneralWard": "Patients Discharged from General Ward each day (fully recovered)",
+    "n_discharged_OffVentInICU": "Patients Discharged from ICU (not on Vent) each day (fully recovered)",
+    "n_discharged_OnVentInICU": "Patients Discharged from Ventilator In ICU each day (fully recovered)"
 }
 
