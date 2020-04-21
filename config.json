@@ -5,6 +5,9 @@
     "summary_upper_file": "summary-percentile=097.50.csv",
     "summary_lower_file": "summary-percentile=002.50.csv",
     "time_step_format": "%m/%d/%Y",
+    "comma_sep_scenario_titles": "",
+    "scenario_id": 0,
+    "scenario_title": "Scenario1",
     "first_time_step": "04/07/2020",
     "time_delta": "1d",
     "num_scenarios": 4

@@ -21,13 +21,16 @@ def load_output_data(config=None):
 
     summary_files = [(key, val) for (key, val) in config.items() if key.startswith('summary_')]
     all_scenario_dataframes = []
-    for scenario_number in range(0, num_scenarios):
+    for scenario_number in range(0, int(num_scenarios)):
         scenario_dataframes = []
         scenario_output_path = output_path + '_{}/'.format(scenario_number)
         for file_type, file_name in summary_files:
             percentile = re.findall('\d*\.?\d+', file_name)[0]
 
-            df_temp = pd.read_csv(os.path.join(scenario_output_path, file_name))
+            try:
+                df_temp = pd.read_csv(os.path.join(scenario_output_path, file_name))
+            except FileNotFoundError:
+                df_temp = pd.read_csv(os.path.join(output_path, file_name))
             df_temp['percentile'] = percentile
             df_temp['timestep_formatted'] = df_temp.apply(lambda x: fill_timestep(x.timestep, first_time_step_datetime, time_delta), axis=1)
 
@@ -174,13 +177,59 @@ def make_figure(dfs, labels, time_step_format):
 
 
 # TODO: Figure out why the graph object height is 100% of view window
-def figures_to_html(figs, filename="dashboard.html"):
+def figures_to_html(figs, labels, scenario_title, first_time_step, filename="dashboard.html"):
     dashboard = open(filename, 'w')
-    dashboard.write("<html>"
-                    "<head><link rel='stylesheet' type='text/css' href='assets/style.css'></head>"
-                    "<body><div class='container'><h2>COVID-19 Forecast for TMC (Experimental Draft; Do Not Take Seriously)</h2>" + "\n")
+    html = '''<html>
+           <head>
+           <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+           <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>        
+           <link rel='stylesheet' type='text/css' href='assets/style.css'>
+           </head>
+           <body>
+           <div class='container'>
+           <h2>COVID-19 Forecast for TMC (Experimental Draft)</h2>
+           <h1 class="text-center"> {scenario_title} </h1>
+           <div class="container-fluid text-left">
+           <div class="row content">
+           <p> Forecasts started on day: {first_time_step} </p>
+           <a name='resources'><h3>Resources</h3></a>
+                <ul>
+                    <li> Parameters: <a href="params.txt">params.txt</a> </li>
+                    <li> Mean CSV summary: <a href="summary-mean.csv">summary-mean.csv</a> </li>
+                    <li> Median CSV summary: <a href="summary-percentile=050.00.csv">summary-percentile=050.00.csv</a></li> 
+                    <li> 2.5th-perc. CSV summary: <a href="summary-percentile=002.50.csv">summary-percentile=002.50.csv</a></li> 
+                    <li> 97.5th-perc. CSV summary: <a href="summary-percentile=097.50.csv">summary-percentile=097.50.csv</a></li> 
+                </ul>
+           </div>
+           <div class="row content">
+           <a name='toc'><h3>Plots</h3></a>
+           <div class="col-md-12 text-left"> 
+           <table class="table" width="100%" border="1">
+        '''.format(scenario_title=scenario_title, first_time_step=first_time_step)
+
+    keys = list(labels.keys())
+    L = len(keys)
+    C = 3 # num cols
+    M = L // C # num rows
+    list_per_row = [keys[m::M] for m in range(M)]
+    key_order = sum(list_per_row, []) # concatenate into flat ordered list
+    is_first_col = lambda kk: (kk % C == 0)
+    is_last_col = lambda kk: (kk % C == (M-1))
+    for kk, key in enumerate(key_order):
+        if is_first_col(kk):
+            html += "\n<tr>"
+        html += '\n    <td class="col-md-4"><a href="#%s">%s</a></td>' % (key, labels[key])
+        if is_last_col(kk):
+            html += "\n</tr>"
+    html += "\n</table></div></div></div>"
+    dashboard.write(html + "\n\n")
+
+    inv_labels = dict(zip(labels.values(), labels.keys()))
+
     for k, v in figs.items():
         inner_html = v.to_html().split("<body>")[1].split("</body>")[0]
+        dashboard.write("<a name='%s'><h4>%s</h4>\n" % (inv_labels[k], k))
+        dashboard.write("<a href='#toc'>[back to top]</a>\n")
         dashboard.write(inner_html)
     dashboard.write("</div></body></html>" + "\n")
 
@@ -200,15 +249,20 @@ def main():
         if key in args.__dict__:
             config[key] = args.__dict__[key]
 
-    dfs, time_step_format = load_output_data(config)
+    title_list = config['comma_sep_scenario_titles'].split(',')
+    scen_id = int(config['scenario_id']) - 1
+    if len(title_list) > 0 and scen_id >= 0:
+        config['scenario_title'] = title_list[scen_id]
+
+    dfs, time_step_format = load_output_data(dict(**config)) # pass a copy so config cannot be changed as side effect
     labels = load_labels()
     figures = make_figure(dfs, labels, time_step_format)
-
+    
     if dash == True:
         return figures
     else:
         # TODO: Print all figures from different scenarios reasonably
-        figures_to_html(figures[0], filename=config['output_html_file'])
+        figures_to_html(figures[0], labels, config['scenario_title'], config['first_time_step'], filename=config['output_html_file'])
 
 
 if __name__ == "__main__":
