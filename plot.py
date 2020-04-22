@@ -33,7 +33,7 @@ def load_output_data(config=None):
             df_temp['patient_status'] = status_name
             df_temp['timestep_formatted'] = pd.to_datetime(df_temp['date'], infer_datetime_format=True)
             df_temp['data_type'] = 'actual'
-            df_temp = df_temp[df_temp['timestep_formatted'] > first_time_step_datetime - look_back]
+            df_temp = df_temp[df_temp['timestep_formatted'] >= first_time_step_datetime - look_back]
 
             real_time_clinical_dataframes.append(df_temp)
 
