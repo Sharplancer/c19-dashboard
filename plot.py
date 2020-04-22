@@ -17,7 +17,28 @@ def load_output_data(config=None):
     time_step_format = config.pop('time_step_format')
     time_delta = parse_time(config.pop('time_delta'))
     first_time_step = config.pop('first_time_step')
+    look_back = parse_time(config.pop('look_back'))
     first_time_step_datetime = datetime.strptime(first_time_step, time_step_format)
+    real_time_clinical_output_path = config.pop('actual_output_path')
+    location = config.pop('actual_location')
+
+    patient_status = [(k.rsplit('_')[1], v) for k, v in config.items() if 'actual_' in k]
+
+    real_time_clinical_dataframes = []
+    for status in patient_status:
+        if status[1]:
+            status_name = status[0]
+            file_name = status_name + '.csv'
+            df_temp = pd.read_csv(os.path.join(real_time_clinical_output_path, location, file_name))
+            df_temp['patient_status'] = status_name
+            df_temp['timestep_formatted'] = pd.to_datetime(df_temp['date'], infer_datetime_format=True)
+            df_temp['data_type'] = 'actual'
+            df_temp = df_temp[df_temp['timestep_formatted'] > first_time_step_datetime - look_back]
+
+            real_time_clinical_dataframes.append(df_temp)
+
+    real_time_clinical_dataframe = pd.concat(real_time_clinical_dataframes)
+    real_time_clinical_dataframe.to_csv('test.csv')
 
     summary_files = [(key, val) for (key, val) in config.items() if key.startswith('summary_')]
     all_scenario_dataframes = []
@@ -33,6 +54,7 @@ def load_output_data(config=None):
                 df_temp = pd.read_csv(os.path.join(output_path, file_name))
             df_temp['percentile'] = percentile
             df_temp['timestep_formatted'] = df_temp.apply(lambda x: fill_timestep(x.timestep, first_time_step_datetime, time_delta), axis=1)
+            df_temp['data_type'] = 'predicted'
 
             if 'upper' in file_type:
                 df_temp['bound'] = 'upper'
@@ -44,11 +66,15 @@ def load_output_data(config=None):
             scenario_dataframes.append(df_temp)
         all_scenario_dataframes.append(pd.concat(scenario_dataframes))
 
-    return all_scenario_dataframes, time_step_format
+    return all_scenario_dataframes, real_time_clinical_dataframe, time_step_format
 
 
 def fill_timestep(timestep, first_time_step_datetime, time_delta):
     return first_time_step_datetime + timestep*time_delta
+
+
+def date_to_timestep(date, first_time_step_datetime, time_step_format):
+    date_as_datetime = datetime.strptime(date, time_step_format)
 
 
 def parse_time(time_str):
@@ -68,7 +94,6 @@ def parse_time(time_str):
     time_params = {name: float(param) for name, param in parts.groupdict().items() if param}
     return pd.Timedelta(**time_params)
 
-
 def load_labels():
     with open('labels.json') as f:
         label_dict = json.load(f)
@@ -76,16 +101,11 @@ def load_labels():
     return label_dict
 
 
-def make_figure(dfs, labels, time_step_format):
+def make_figure(dfs, labels, time_step_format, real_time_clinical_dataframe):
+
     all_scenario_figures = []
     for df in dfs:
         percentiles = sorted(df.percentile.unique())
-
-        y_cols = list(df.columns)
-        y_cols.remove('timestep')
-        y_cols.remove('percentile')
-        y_cols.remove('timestep_formatted')
-        y_cols.remove('bound')
 
         figures = {}
 
@@ -93,6 +113,17 @@ def make_figure(dfs, labels, time_step_format):
         # Much easier to change downstream
         for y in labels.keys():
             fig = go.Figure()
+
+            # TODO: Need to loop over the possible patient statuses and add a trace for each one
+            # This assumes the default config of just one status
+            if y in real_time_clinical_dataframe.columns:
+                fig.add_trace(go.Scatter(
+                    x=real_time_clinical_dataframe.timestep_formatted,
+                    y=real_time_clinical_dataframe[y],
+                    name=str(real_time_clinical_dataframe['patient_status'].unique()[0]),
+                    mode='lines',
+                    line=dict(color='#FF4500')
+                ))
 
             for p in percentiles:
                 df_filtered = df[df['percentile'] == p]
@@ -103,7 +134,7 @@ def make_figure(dfs, labels, time_step_format):
                         y=df_filtered[y],
                         fill="none",
                         mode='lines',
-                        line = dict(color='indigo', width=0),
+                        line=dict(color='indigo', width=0),
                         name='%ile: ' + str(float(p))
                     ))
 
@@ -114,7 +145,7 @@ def make_figure(dfs, labels, time_step_format):
                         fill="tonexty",
                         fillcolor="rgba(75, 0, 130,0.2)",
                         mode='lines',
-                        line = dict(color='indigo', width=0),
+                        line=dict(color='indigo', width=0),
                         name='%ile: ' + str(float(p))
                     ))
 
@@ -254,10 +285,10 @@ def main():
     if len(title_list) > 0 and scen_id >= 0:
         config['scenario_title'] = title_list[scen_id]
 
-    dfs, time_step_format = load_output_data(dict(**config)) # pass a copy so config cannot be changed as side effect
+    dfs, real_time_clinical_dataframe, time_step_format = load_output_data(dict(**config)) # pass a copy so config cannot be changed as side effect
     labels = load_labels()
-    figures = make_figure(dfs, labels, time_step_format)
-    
+    figures = make_figure(dfs, labels, time_step_format, real_time_clinical_dataframe)
+
     if dash == True:
         return figures
     else:
