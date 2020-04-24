@@ -38,7 +38,6 @@ def load_output_data(config=None):
             real_time_clinical_dataframes.append(df_temp)
 
     real_time_clinical_dataframe = pd.concat(real_time_clinical_dataframes)
-    real_time_clinical_dataframe.to_csv('test.csv')
 
     summary_files = [(key, val) for (key, val) in config.items() if key.startswith('summary_')]
     all_scenario_dataframes = []
@@ -71,10 +70,6 @@ def load_output_data(config=None):
 
 def fill_timestep(timestep, first_time_step_datetime, time_delta):
     return first_time_step_datetime + timestep*time_delta
-
-
-def date_to_timestep(date, first_time_step_datetime, time_step_format):
-    date_as_datetime = datetime.strptime(date, time_step_format)
 
 
 def parse_time(time_str):
