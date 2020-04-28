@@ -10,5 +10,11 @@
     "scenario_title": "Scenario1",
     "first_time_step": "04/07/2020",
     "time_delta": "1d",
-    "num_scenarios": 4
+    "look_back": "7d",
+    "num_scenarios": 3,
+    "actual_output_path": "./data/real_time_clinical",
+    "actual_location": "tmc",
+    "actual_pui": false,
+    "actual_pos": false,
+    "actual_total": true
 }
